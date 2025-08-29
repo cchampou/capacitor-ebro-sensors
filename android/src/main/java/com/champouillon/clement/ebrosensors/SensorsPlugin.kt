@@ -1,6 +1,7 @@
 package com.champouillon.clement.ebrosensors
 
-import com.getcapacitor.JSObject
+import android.bluetooth.BluetoothManager
+import android.content.Context
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
@@ -8,14 +9,15 @@ import com.getcapacitor.annotation.CapacitorPlugin
 
 @CapacitorPlugin(name = "Sensors")
 class SensorsPlugin : Plugin() {
-    private val implementation = Sensors()
-
     @PluginMethod
-    fun echo(call: PluginCall) {
-        val value = call.getString("value")
+    fun scan(call: PluginCall) {
+        val bluetoothManager: BluetoothManager = activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val bluetoothAdapter = bluetoothManager.adapter
 
-        val ret = JSObject()
-        ret.put("value", implementation.echo(value))
-        call.resolve(ret)
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
+            call.reject("Bluetooth is not available")
+            return
+        }
+        call.resolve()
     }
 }

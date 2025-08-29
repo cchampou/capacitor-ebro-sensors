@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@capacitor/core": "latest",
-    "capacitor-ebro-sensors": "file:..",
+    "capacitor-ebro-sensors": "link:../",
     "@capacitor/ios": "7.0.0",
     "@capacitor/android": "7.0.0"
   },
