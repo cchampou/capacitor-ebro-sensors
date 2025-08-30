@@ -1,22 +1,32 @@
 import type { PluginListenerHandle } from '@capacitor/core';
 
-type ProbeType = 'penetration' | 'infrared';
+export type ProbeType = 'penetration' | 'infrared';
 
-type EventName = 'temperature';
+export type EventName = 'temperature' | 'connected' | 'disconnected';
 
-type Callback<T> = (data: T) => void;
-
-type TemperatureData = {
+export type TemperatureData = {
   probe: ProbeType;
   value: number;
 }
 
+export type TemperatureCallback = (data: TemperatureData) => void;
+
+type TemperatureListener = (
+  eventName: 'temperature',
+  listenerFunc: TemperatureCallback
+) => Promise<PluginListenerHandle>;
+type ConnectedListener = (
+  eventName: 'connected',
+  listenerFunc: () => void
+) => Promise<PluginListenerHandle>;
+type DisconnectedListener = (
+  eventName: 'disconnected',
+  listenerFunc: () => void
+) => Promise<PluginListenerHandle>;
+
+
 export interface SensorsPlugin {
   connect(): void;
   disconnect(): void;
-  isConnected(): Promise<{ connected: boolean }>;
-  addListener(
-    eventName: EventName,
-    listenerFunc: Callback<TemperatureData>
-  ): Promise<PluginListenerHandle>;
+  addListener: TemperatureListener & ConnectedListener & DisconnectedListener;
 }

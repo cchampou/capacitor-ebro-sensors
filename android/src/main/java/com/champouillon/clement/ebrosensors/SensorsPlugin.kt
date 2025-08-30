@@ -25,12 +25,27 @@ class SensorsPlugin : Plugin() {
 
     private val bluetoothService: BluetoothService = BluetoothService()
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    @PluginMethod
+    fun disconnect(call: PluginCall) {
+        bluetoothService.disconnect()
+        call.resolve()
+    }
+
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     @PluginMethod
-    fun scan(call: PluginCall) {
+    fun connect(call: PluginCall) {
         Log.d("BluetoothService", "Plugin call scan")
         try {
             bluetoothService.init(context)
+            bluetoothService.onDeviceConnected = {
+                Log.d("BluetoothService", "Device connected EVENT")
+                notifyListeners("connected", null)
+            }
+            bluetoothService.onDeviceDisconnected = {
+                Log.d("BluetoothService", "Device disconnected EVENT")
+                notifyListeners("disconnected", null)
+            }
             if (getPermissionState("bluetooth-scan") != PermissionState.GRANTED) {
                 requestPermissionForAlias("bluetooth-scan", call, "launchScan")
             } else {
@@ -49,7 +64,7 @@ class SensorsPlugin : Plugin() {
             val callback = { temperature: Float, probeType: String ->
                 val result = JSObject()
                 result.put("value", temperature)
-                result.put("input", probeType)
+                result.put("probe", probeType)
                 notifyListeners("temperature", result)
             }
             bluetoothService.scanForDevices(10000, callback)

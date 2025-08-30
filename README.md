@@ -15,8 +15,6 @@ npx cap sync
 
 * [`connect()`](#connect)
 * [`disconnect()`](#disconnect)
-* [`isConnected()`](#isconnected)
-* [`addListener('temperature', ...)`](#addlistenertemperature-)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
 
@@ -43,33 +41,6 @@ disconnect() => void
 --------------------
 
 
-### isConnected()
-
-```typescript
-isConnected() => Promise<{ connected: boolean; }>
-```
-
-**Returns:** <code>Promise&lt;{ connected: boolean; }&gt;</code>
-
---------------------
-
-
-### addListener('temperature', ...)
-
-```typescript
-addListener(eventName: EventName, listenerFunc: Callback<TemperatureData>) => Promise<PluginListenerHandle>
-```
-
-| Param              | Type                                                                                                |
-| ------------------ | --------------------------------------------------------------------------------------------------- |
-| **`eventName`**    | <code>'temperature'</code>                                                                          |
-| **`listenerFunc`** | <code><a href="#callback">Callback</a>&lt;<a href="#temperaturedata">TemperatureData</a>&gt;</code> |
-
-**Returns:** <code>Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt;</code>
-
---------------------
-
-
 ### Interfaces
 
 
@@ -83,14 +54,14 @@ addListener(eventName: EventName, listenerFunc: Callback<TemperatureData>) => Pr
 ### Type Aliases
 
 
-#### EventName
+#### TemperatureListener
 
-<code>'temperature'</code>
+<code>(eventName: "temperature", listenerFunc: <a href="#temperaturecallback">TemperatureCallback</a>): Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt;</code>
 
 
-#### Callback
+#### TemperatureCallback
 
-<code>(data: T): void</code>
+<code>(data: <a href="#temperaturedata">TemperatureData</a>): void</code>
 
 
 #### TemperatureData
@@ -101,5 +72,15 @@ addListener(eventName: EventName, listenerFunc: Callback<TemperatureData>) => Pr
 #### ProbeType
 
 <code>'penetration' | 'infrared'</code>
+
+
+#### ConnectedListener
+
+<code>(eventName: "connected", listenerFunc: () =&gt; void): Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt;</code>
+
+
+#### DisconnectedListener
+
+<code>(eventName: "disconnected", listenerFunc: () =&gt; void): Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt;</code>
 
 </docgen-api>

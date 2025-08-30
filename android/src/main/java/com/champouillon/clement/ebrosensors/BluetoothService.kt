@@ -25,9 +25,21 @@ class BluetoothService {
     private var mainLooper: Looper = Looper.getMainLooper()
     private var context: Context? = null
     private var tempMeasurementDescriptorUUID: UUID = UUID.fromString("2e4dd79f-0e10-49c8-9f81-c885d0f33b53")
+    private var bluetoothGatt: BluetoothGatt? = null
 
     private var onTemperatureRead: (Float, String) -> Unit = { temperature, probeType ->
         Log.d("BluetoothService", "Temperature: $temperature with probe type: $probeType")
+    }
+
+    var onDeviceConnected: (() -> Unit)? = null
+    var onDeviceDisconnected: (() -> Unit)? = null
+
+    @RequiresPermission(allOf = [Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN])
+    fun disconnect() {
+        Log.d("BluetoothService", "Disconnecting from device...")
+        this.stopScan()
+        bluetoothGatt?.disconnect()
+        Log.d("BluetoothService", "Disconnected from device")
     }
 
     fun init(context: Context) {
@@ -74,7 +86,6 @@ class BluetoothService {
             Log.d("BluetoothService", "Device is compatible, connecting...")
             stopScan()
             val gattCallback = object : BluetoothGattCallback() {
-
                 override fun onCharacteristicChanged(
                     gatt: BluetoothGatt,
                     characteristic: BluetoothGattCharacteristic,
@@ -93,9 +104,14 @@ class BluetoothService {
                 override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
                     super.onConnectionStateChange(gatt, status, newState)
                     if (newState == BluetoothGatt.STATE_CONNECTED) {
+                        onDeviceConnected?.invoke()
+                        bluetoothGatt = gatt
                         Log.d("BluetoothService", "Connected to device")
                         gatt.discoverServices()
                     } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
+                        onDeviceDisconnected?.invoke()
+                        bluetoothGatt?.close()
+                        bluetoothGatt = null
                         Log.d("BluetoothService", "Disconnected from device")
                     }
                 }
@@ -139,7 +155,7 @@ class BluetoothService {
     }
 
     private fun parseTemperature(data: ByteArray): Pair<Float, String> {
-        val probeType = if ((data[13].toInt() and 0xFF) == 0x01) "Infrared" else "Physical"
+        val probeType = if ((data[13].toInt() and 0xFF) == 0x01) "infrared" else "penetration"
         // Temperature is 2 bytes at positions 14-15 (little-endian)
         val tempLowByte = data[14].toInt() and 0xFF  // 0x0D
         val tempHighByte = data[15].toInt() and 0xFF // 0x01

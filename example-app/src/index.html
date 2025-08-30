@@ -27,9 +27,11 @@ button {
       <h1>Read temperature from a TLC750 BT</h1>
       <div id="temperature" class="reading">-- °C</div>
       <div id="probe-type" class="reading">--</div>
+      <div id="status" class="reading">Disconnected</div>
       <button onclick="connectAndListen()">Connect</button>
+      <button onclick="disconnect()">Disconnect</button>
     </main>
 
-    <script src="./js/example.js" type="module"></script>
+    <script src="./js/example.ts" type="module"></script>
   </body>
 </html>
