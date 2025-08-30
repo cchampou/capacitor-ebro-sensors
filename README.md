@@ -2,6 +2,10 @@
 
 Connect to Ebro sensors using BLE
 
+Compatible with TLC750 Bluetooth.
+
+Android only for now.
+
 ## Install
 
 ```bash
