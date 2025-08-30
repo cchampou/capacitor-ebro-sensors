@@ -8,17 +8,26 @@
       content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <meta name="format-detection" content="telephone=no" />
+<style>
+body {
+  text-align: center;
+}
+.reading {
+  font-size: 2em;
+  margin: 0.5em 0;
+}
+button {
+  font-size: 1.5em;
+  padding: 0.5em 1em;
+}
+</style>
   </head>
   <body>
     <main>
-      <h1>Capacitor Test Plugin Project</h1>
-      <p>
-        This project can be used to test out the functionality of your plugin. Nothing in the
-        <em>example-app/</em> folder will be published to npm when using this template, so you can create away!
-      </p>
-      <label for="echoInput">Echo Text:</label>
-      <input type="text" id="echoInput" name="echoInput" value="Hello World!" />
-      <button onclick="testEcho()">Click Me!</button>
+      <h1>Read temperature from a TLC750 BT</h1>
+      <div id="temperature" class="reading">-- °C</div>
+      <div id="probe-type" class="reading">--</div>
+      <button onclick="connectAndListen()">Connect</button>
     </main>
 
     <script src="./js/example.js" type="module"></script>

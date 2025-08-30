@@ -46,11 +46,14 @@ class SensorsPlugin : Plugin() {
     fun launchScan(call: PluginCall) {
         Log.d("BluetoothService", "Launching scan...")
         if (getPermissionState("bluetooth-scan") == PermissionState.GRANTED) {
-            val callback = { devices: Array<String> ->
-                Log.d("BluetoothService", "Found devices: $devices")
-                call.resolve(JSObject())
+            val callback = { temperature: Float, probeType: String ->
+                val result = JSObject()
+                result.put("value", temperature)
+                result.put("input", probeType)
+                notifyListeners("temperature", result)
             }
             bluetoothService.scanForDevices(10000, callback)
+            call.resolve()
         } else {
             call.reject("Permission for scanning bluetooth devices not granted")
         }

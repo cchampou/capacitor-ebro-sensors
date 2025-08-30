@@ -26,7 +26,9 @@ class BluetoothService {
     private var context: Context? = null
     private var tempMeasurementDescriptorUUID: UUID = UUID.fromString("2e4dd79f-0e10-49c8-9f81-c885d0f33b53")
 
-
+    private var onTemperatureRead: (Float, String) -> Unit = { temperature, probeType ->
+        Log.d("BluetoothService", "Temperature: $temperature with probe type: $probeType")
+    }
 
     fun init(context: Context) {
         this.context = context
@@ -48,7 +50,8 @@ class BluetoothService {
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
-    fun scanForDevices(timeout: Long, callback: (Array<String>) -> Unit) {
+    fun scanForDevices(timeout: Long, callback: (Float, String) -> Unit) {
+        onTemperatureRead = callback
         Log.d("BluetoothService", "Scanning for devices...")
         bluetoothAdapter!!.bluetoothLeScanner.startScan(leScanCallback)
         Log.d("BluetoothService", "Scan started")
@@ -80,6 +83,7 @@ class BluetoothService {
                     Log.d("BluetoothService", "Characteristic changed: ${characteristic.uuid}")
                     if (characteristic.uuid == tempMeasurementDescriptorUUID) {
                         val temperature = parseTemperature(value)
+                        onTemperatureRead(temperature.first, temperature.second)
                         Log.d("BluetoothService", "Temperature: ${temperature.first} with probe type: ${temperature.second}")
                     }
                     super.onCharacteristicChanged(gatt, characteristic, value)

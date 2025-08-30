@@ -1,3 +1,8 @@
+type Callback<T> = (data: T) => void;
+
 export interface SensorsPlugin {
-  scan(): Promise<void>;
+  scan(callback: Callback<{
+    value: number;
+    input: string;
+  }>): void;
 }
