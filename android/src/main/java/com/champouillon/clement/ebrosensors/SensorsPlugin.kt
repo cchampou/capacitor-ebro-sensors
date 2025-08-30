@@ -25,7 +25,7 @@ class SensorsPlugin : Plugin() {
 
     private val bluetoothService: BluetoothService = BluetoothService()
 
-    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    @RequiresPermission(allOf = [Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN])
     @PluginMethod
     fun disconnect(call: PluginCall) {
         bluetoothService.disconnect()
