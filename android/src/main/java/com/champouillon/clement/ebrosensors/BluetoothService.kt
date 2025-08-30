@@ -94,6 +94,10 @@ class BluetoothService {
                     Log.d("BluetoothService", "Characteristic changed: ${characteristic.uuid}")
                     if (characteristic.uuid == tempMeasurementDescriptorUUID) {
                         val temperature = parseTemperature(value)
+                        if (temperature.first > 250) {
+                            Log.d("BluetoothService", "Temperature is too high: $temperature")
+                            return
+                        }
                         onTemperatureRead(temperature.first, temperature.second)
                         Log.d("BluetoothService", "Temperature: ${temperature.first} with probe type: ${temperature.second}")
                     }
