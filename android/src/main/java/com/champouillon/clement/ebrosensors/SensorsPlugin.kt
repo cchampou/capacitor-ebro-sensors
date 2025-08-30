@@ -1,23 +1,58 @@
 package com.champouillon.clement.ebrosensors
 
-import android.bluetooth.BluetoothManager
-import android.content.Context
+import android.Manifest
+import android.util.Log
+import androidx.annotation.RequiresPermission
+import com.getcapacitor.JSObject
+import com.getcapacitor.PermissionState
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
 import com.getcapacitor.PluginMethod
 import com.getcapacitor.annotation.CapacitorPlugin
+import com.getcapacitor.annotation.Permission
+import com.getcapacitor.annotation.PermissionCallback
 
-@CapacitorPlugin(name = "Sensors")
+@CapacitorPlugin(
+    name = "Sensors",
+    permissions = [
+        Permission(
+            alias = "bluetooth-scan",
+            strings = [Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION]
+        )
+    ]
+)
 class SensorsPlugin : Plugin() {
+
+    private val bluetoothService: BluetoothService = BluetoothService()
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     @PluginMethod
     fun scan(call: PluginCall) {
-        val bluetoothManager: BluetoothManager = activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        val bluetoothAdapter = bluetoothManager.adapter
-
-        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
-            call.reject("Bluetooth is not available")
-            return
+        Log.d("BluetoothService", "Plugin call scan")
+        try {
+            bluetoothService.init(context)
+            if (getPermissionState("bluetooth-scan") != PermissionState.GRANTED) {
+                requestPermissionForAlias("bluetooth-scan", call, "launchScan")
+            } else {
+                launchScan(call)
+            }
+        } catch (exception: Exception) {
+            call.reject(exception.message)
         }
-        call.resolve()
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
+    @PermissionCallback
+    fun launchScan(call: PluginCall) {
+        Log.d("BluetoothService", "Launching scan...")
+        if (getPermissionState("bluetooth-scan") == PermissionState.GRANTED) {
+            val callback = { devices: Array<String> ->
+                Log.d("BluetoothService", "Found devices: $devices")
+                call.resolve(JSObject())
+            }
+            bluetoothService.scanForDevices(10000, callback)
+        } else {
+            call.reject("Permission for scanning bluetooth devices not granted")
+        }
     }
 }
